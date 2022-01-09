@@ -28,39 +28,23 @@ function co2Priority(bitsIdx) {
   return bitsIdx[0];
 }
 
-function getCommonBits(bits, priorityBits, cursor) {
+function getRating(bits, priorityBits, cursor = 0) {
+  if (bits.length === 1) return toDec(bits[0]);
+
   const bitsIdx = [[], []];
 
   bits
     .map((b) => b[cursor])
     .forEach((leadingBit, idx) => bitsIdx[leadingBit].push(idx));
 
-  const firstCommonBits = priorityBits(bitsIdx);
-  return bits.filter((b, idx) => firstCommonBits.includes(idx));
+  const commonBits = priorityBits(bitsIdx);
+  const nextBits = bits.filter((_, idx) => commonBits.includes(idx));
+
+  return getRating(nextBits, priorityBits, cursor + 1);
 }
 
 function solutionFn(bits) {
-  let oxyenBits = bits,
-    oxyenCursor = 0;
-
-  while (true) {
-    if (oxyenBits.length === 1) break;
-
-    oxyenBits = getCommonBits(oxyenBits, o2Priority, oxyenCursor);
-    oxyenCursor++;
-  }
-
-  let co2Bits = bits,
-    co2Cursor = 0;
-
-  while (true) {
-    if (co2Bits.length === 1) break;
-
-    co2Bits = getCommonBits(co2Bits, co2Priority, co2Cursor);
-    co2Cursor++;
-  }
-
-  return toDec(oxyenBits[0]) * toDec(co2Bits[0]);
+  return getRating(bits, o2Priority) * getRating(bits, co2Priority);
 }
 
 //solutionFn(test);
